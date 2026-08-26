@@ -1,21 +1,19 @@
 import { useContext } from "react";
 import "./App.css";
 import { EngineContext } from "./engine/engine";
-import { Person } from "capnp-gen/test.capnp.js";
-import * as capnp from "capnp-ts";
+
+import * as flatbuffers from 'flatbuffers'
+import { StopPackageHeader } from "./gen/flatc/dafi/stop-package-header";
 
 function App() {
   var engine = useContext(EngineContext);
-  var m0 = new capnp.Message();
-  var p0 = m0.initRoot(Person);
-  p0.setEmail("a@b.com");
-  var bytes = m0.toArrayBuffer();
-
-  var m1 = new capnp.Message(bytes, false);
-  var p1 = m1.getRoot(Person);
-  console.log(p1);
-
-  return <>{engine.getEight().toString()}</>;
+  let builder = new flatbuffers.Builder(1024);
+  StopPackageHeader.startStopPackageHeader(builder);
+  StopPackageHeader.addQuad(builder, 101);
+  let stopHeader = StopPackageHeader.endStopPackageHeader(builder);
+  builder.finish(stopHeader);
+  let data = builder.asUint8Array();
+  return <>{engine.getEight(data).toString()}</>;
 }
 
 export default App;

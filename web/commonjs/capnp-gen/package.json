@@ -1,6 +1,0 @@
-{
-  "name": "capnp",
-  "version": "0.0.1",
-  "type": "commonjs",
-  "main": "./test.capnp.js"
-}

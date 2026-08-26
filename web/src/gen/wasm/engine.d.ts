@@ -2,8 +2,9 @@
 interface WasmModule {
 }
 
+type EmbindString = ArrayBuffer|Uint8Array|Uint8ClampedArray|Int8Array|string;
 interface EmbindModule {
-  getEight(): number;
+  getEight(_0: EmbindString): number;
 }
 
 export type MainModule = WasmModule & EmbindModule;

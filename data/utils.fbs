@@ -1,0 +1,12 @@
+namespace dafi;
+
+table URange {
+  // The first value included in the interval.
+  first: uint (id: 0);
+
+  // One past the the last element in this interval. If .first and .limit are
+  // equal the interval is empty and their values don't matter. Note that because
+  // this is one *past* the end value you can't express the interval that covers
+  // all UInt32s.
+  limit: uint (id: 1);
+}

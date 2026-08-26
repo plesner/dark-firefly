@@ -9,8 +9,8 @@ export class Engine {
     this.wasm = wasm;
   }
 
-  getEight(): number {
-    return this.wasm.getEight();
+  getEight(data: Uint8Array): number {
+    return this.wasm.getEight(data);
   }
 }
 

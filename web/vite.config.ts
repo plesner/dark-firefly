@@ -5,11 +5,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ['capnp-gen/test.capnp.js'],
   },
   build: {
-    commonjsOptions: {
-      include: [/node_modules/, /capnp-gen/],
-    },
   },
 })

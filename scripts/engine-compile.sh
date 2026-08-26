@@ -1,3 +1,5 @@
+set -e
+
 EMSCRIPTEN_ROOT="${EMSCRIPTEN_ROOT:-}"
 
 if [ -n "$EMSCRIPTEN_ROOT" ]; then
@@ -8,7 +10,9 @@ fi
 
 "$EMPLUSPLUS" \
   -lembind \
+  -Icpp/src \
+  -I$FLATBUFS_ROOT/include/ \
   -o web/src/gen/wasm/engine.mjs \
   --no-entry \
   --emit-tsd engine.d.ts \
-  engine/src/main.cc
+  cpp/src/bindings.cc

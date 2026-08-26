@@ -1,0 +1,42 @@
+include "utils.fbs";
+
+namespace dafi;
+
+enum EntityType: byte {
+  STOP = 0
+}
+
+table EntitySectionDescription {
+  path: string (id: 0);
+  attribute_mask: int (id: 1);
+}
+
+table EntitySetDescription {
+  type: EntityType (id: 0);
+  packages: [EntityPackageDescription] (id: 1);
+  entity_count: int (id: 2);
+}
+
+table StopPackageHeader {
+  quad: uint (id: 0);
+}
+
+union PackageHeader {
+  stop: StopPackageHeader (id: 0)
+}
+
+table EntityPackageDescription {
+  pid: int (id: 0);
+  sections: [EntitySectionDescription] (id: 1);
+  gids: URange (id: 2);
+  label: string (id: 3);
+  header: PackageHeader (id: 5);
+}
+
+table BundleDescription {
+  stops: EntitySetDescription (id: 0);
+}
+
+table BundleManifest {
+  description: BundleDescription (id: 0);
+}
