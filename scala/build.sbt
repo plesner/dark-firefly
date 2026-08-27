@@ -1,14 +1,12 @@
-ThisBuild / version := "0.0.1-SNAPSHOT"
-ThisBuild / scalaVersion := "3.3.8"
-ThisBuild / organization := "tundra"
-ThisBuild / javacOptions ++= Seq("-source", "17", "-target", "17")
+val scala3Version = "3.8.4"
 
-val scalatestVersion = "3.2.18"
+lazy val root = project
+  .in(file("."))
+  .settings(
+    name := "dafi",
+    version := "0.1.0-SNAPSHOT",
 
-Compile / mainClass := Some("dafi.cli.main")
+    scalaVersion := scala3Version,
 
-ThisBuild / scalacOptions ++= Seq(
-  "-Xfatal-warnings", "-deprecation"
-)
-
-ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % scalatestVersion % Test
+    libraryDependencies += "org.scalameta" %% "munit" % "1.3.4" % Test
+  )
