@@ -97,6 +97,7 @@ object ZQuad:
     val unitLon = (180.0 + geoLon) / 360.0
     fromUnit(unitLon, unitLat)
 
+
 case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
 
   /** Returns the quad at the given zoom level that contains this quad. If the
@@ -115,6 +116,48 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
     val newQuad = quad.ancestor(n)
     val newZoom = (zoomLevel - n).max(0)
     return new ZQuad(newQuad, newZoom)
+  
+  def leastCommonAncestor(that: ZQuad): ZQuad =
+    var a = this
+    var b = that
+    
+    // Normalize a and b so they're both at the same zoom level.
+    if a.zoomLevel < b.zoomLevel then
+      b = b.ancestor(b.zoomLevel - a.zoomLevel)
+    else
+      a = a.ancestor(a.zoomLevel - b.zoomLevel)
+
+    // Get their respective scalars.
+    val aScalar = a.scalar
+    val bScalar = b.scalar
+
+    // Find most significant bit of difference between the two scalars. Because
+    // of the recursive zig-zag way the quad indices are constructed this gives
+    // the highest zoom level where there is a difference.
+    val allDifferences = aScalar ^ bScalar
+    val highestDifference = ZQuadLong.highestOneBit(allDifferences)
+
+    // The amount to zoom out such that the most significant difference will be
+    // discarded.
+    val ancestorDeltaZoom = (highestDifference + 1) >> 1
+
+    // Zoom out by that amount.
+    a.ancestor(ancestorDeltaZoom)
+  
+  /** Given a quad within this one, returns the quad that locates the given quad
+   * within this one. That is, if you made this quad everything what would the
+   * given quad be? Or, to express it differently, this returns the quad that
+   * you can pass to 'descendant' from this one to get the argument. Cheap.
+   */
+  def descendancy(that: ZQuad): ZQuad =
+    val innerZoom = that.zoomLevel - this.zoomLevel
+    val innerBias = zoomBias(innerZoom)
+    // This is equivalent to getting that's scalar and masking out just the
+    // part that falls within this quad. However since we're masking the top
+    // bits away it doesn't matter if they're biased or not so we just remove
+    // the bias of the lower bits.
+    val innerQuad = ((that.toLong - innerBias) & ((1L << (innerZoom << 1)) - 1)) + innerBias
+    new ZQuad(ZQuadLong.fromLong(innerQuad), innerZoom)
 
   def unitCenter: (Double, Double) =
     val s = this.scalar
@@ -133,4 +176,6 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
 
   def parent: ZQuad = ancestor(1)
 
-  def scalar: Long = quad.toLong - zoomBias(zoomLevel)
+  def scalar: Long = quad.toLong - ZQuad.zoomBias(zoomLevel)
+
+  def toLong: Long = quad.toLong

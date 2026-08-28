@@ -104,3 +104,22 @@ class ZQuadTest extends munit.FunSuite:
     check(175279360092826, 56.167597, 10.206202)
     check(44871516183763568, 56.167600, 10.206198)
     check(717944258940217152, 56.167600, 10.206199)
+
+  test("leastCommonAncestor"):
+    def check(expected: Long, a: Long, b: Long): Unit =
+      assert(expected == ZQuad.fromLong(a).leastCommonAncestor(ZQuad.fromLong(b)).toLong)
+
+    check(0, 0, 1)
+    check(0, 1, 2)
+    check(0, 2, 3)
+    check(0, 3, 4)
+    check(2, 9, 12)
+    check(0, 16, 17)
+    check(15, 63, 62)
+    check(3, 64, 57)
+    check(0, 64, 72)
+    check(15, 256, 62)
+    check(15, 62, 256)
+    check(0, 1108, 1109)
+    check(3, 1044, 917)
+    check(232, 931, 930)

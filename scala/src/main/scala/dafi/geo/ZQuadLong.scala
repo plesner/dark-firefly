@@ -1,8 +1,5 @@
 package dafi.geo
 
-import dafi.{geo => Returns}
-import Returns.ZQuad.zoomBias
-
 opaque type ZQuadLong = Long
 
 object ZQuadLong:
@@ -74,6 +71,9 @@ object ZQuadLong:
     // 00000000000000000000000000000000abcdefghijklmnopqrstuvwxyzABCDEF
     r.toInt
 
+  def highestOneBit(v: Long): Int =
+    64 - java.lang.Long.numberOfLeadingZeros(v)
+
 extension (quad: ZQuadLong)
 
   def toLong: Long = quad
@@ -82,7 +82,7 @@ extension (quad: ZQuadLong)
     // Determine which is the highest one-bit. Each zoom level uses exactly 2
     // bits of state but are offset by ~33%, hence the zoom level is ln2(n)/2
     // adjusted for the offset.
-    val highestOneBit = 64 - java.lang.Long.numberOfLeadingZeros(quad)
+    val highestOneBit = ZQuadLong.highestOneBit(quad)
     // Calculate the zoom level bias that separates the coarser zoom level that
     // can have this highest bit set, and the finer one.
     val zoomBias = ((1L << highestOneBit) - 1L) & 0x5555555555555555L
