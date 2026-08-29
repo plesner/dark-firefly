@@ -123,3 +123,18 @@ class ZQuadTest extends munit.FunSuite:
     check(0, 1108, 1109)
     check(3, 1044, 917)
     check(232, 931, 930)
+
+  test("descendancy"):
+    def check(ancestor: Long, descentant: Long, expected: Long): Unit =
+      val descendancy = ZQuad.fromLong(ancestor).descendancy(ZQuad.fromLong(descentant))
+      assert(expected == descendancy.toLong)
+
+    check(0, 1, 1)
+    check(1, 5, 1)
+    check(5, 21, 1)
+    check(21, 85, 1)
+    check(8, 572, 60)
+    check(325, 1303, 3)
+    check(81, 1303, 7)
+    check(20, 1303, 23)
+    check(0, 629583936627917194L, 629583936627917194L)

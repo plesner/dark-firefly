@@ -6,6 +6,7 @@ object ZQuadLong:
 
   private val MaxZoomLimit: Int = 1 << ZQuad.MaxZoom
   private val MaxZoomBias: Long = 0x555555555555555L
+  val Everything: ZQuadLong = 0
 
   def fromLong(quad: Long): ZQuadLong = quad
 
@@ -77,6 +78,8 @@ object ZQuadLong:
 extension (quad: ZQuadLong)
 
   def toLong: Long = quad
+
+  def isEverything: Boolean = (quad == ZQuadLong.Everything)
 
   def zoomLevel: Int =
     // Determine which is the highest one-bit. Each zoom level uses exactly 2

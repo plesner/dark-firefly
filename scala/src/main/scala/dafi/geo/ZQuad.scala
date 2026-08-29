@@ -64,7 +64,7 @@ object ZQuad:
 
   val MaxZoom: Int = 30
 
-  val Everything: ZQuad = ZQuad(ZQuadLong.fromLong(0), 0)
+  val Everything: ZQuad = ZQuad(ZQuadLong.Everything, 0)
 
   private def calcBiases(): Array[Long] =
     val result = Array.fill[Long](MaxZoom + 1)(0)
@@ -108,6 +108,8 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
     if newZoomLevel >= zoomLevel
     then this
     else this.ancestor(zoomLevel - newZoomLevel)
+
+  def isEverything: Boolean = quad.isEverything
 
   /** Returns this quad's ancestor n levels above. A quad's 0'th ancestor is
     * itself.
@@ -158,6 +160,11 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
     // the bias of the lower bits.
     val innerQuad = ((that.toLong - innerBias) & ((1L << (innerZoom << 1)) - 1)) + innerBias
     new ZQuad(ZQuadLong.fromLong(innerQuad), innerZoom)
+
+  def descendant(that: ZQuad): ZQuad =
+    val newQuad = (toLong << (that.zoomLevel << 1)) + that.toLong
+    val newZoom = zoomLevel + that.zoomLevel
+    new ZQuad(ZQuadLong.fromLong(newQuad), newZoom);
 
   def unitCenter: (Double, Double) =
     val s = this.scalar
