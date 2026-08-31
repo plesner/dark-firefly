@@ -1,21 +1,19 @@
 package dafi.geo
 
-import scala.compiletime.ops.double
-
 object ZQuartering:
-  
-  def quarterQuads[V](quads: Iterable[(ZQuad, V)], defaultValue: Option[V]): ZQuartering[V] =
+
+  def apply[V](quads: Iterable[(ZQuad, V)], defaultValue: Option[V]): ZQuartering[V] =
     val iter = quads.iterator
     val (firstQuad, firstValue) = iter.next()
-    
+
     // The common ancestor of all the entries. Initialized to an arbitrary value
     // which the result is guaranteed to be an ancestor of.
     var commonAncestor = firstQuad
-    
+
     // If the common ancestor is explicitly given a value then this variable will
     // hold it at the end.
     var commonAncestorValue: Option[V] = Some(firstValue)
-    
+
     // If all the entries have the same value then this will hold that value at
     // the end.
     var commonEntryValue: Option[V] = Some(firstValue)
@@ -34,15 +32,15 @@ object ZQuartering:
       if commonEntryValue.exists(_ != nextValue) then
         // This entry's value is different from the common value so there is none.
         commonEntryValue = None
-    
-    var overrideDefaultValue = defaultValue
+
+    var outerDefault = defaultValue
     if commonAncestor.isEverything then
       // As a special case, if there is an entry that covers everything then it
       // shadows the explicitly given default value, if there is one, so we make
       // sure it gets discarded. In the following we need to be able to assume
       // that this has happened.
       if commonAncestorValue.isDefined then
-        overrideDefaultValue = commonAncestorValue
+        outerDefault = commonAncestorValue
     else if commonAncestor.zoomLevel > 1 then
       // If the common ancestor is not a direct child but a descendant further
       // down, then if there is a default value we may have to zoom the descendant
@@ -129,19 +127,22 @@ object ZQuartering:
     // there is a default value and it's different we won't be able to generate
     // a leaf in that case even though obviously we should be able to.
     commonEntryValue match
-      case Some(cev) => 
-        if !overrideDefaultValue.exists(_ != cev) then
+      case Some(cev) =>
+        if !outerDefault.exists(_ != cev) then
           return LeafQuartering(cev)
       case _ => ()
-    
+
     // The entries have different values so we have to split them into the four
     // branches. The default value to use here is a little tricky. By default we
     // pass through the override default value we computed above since that's the
     // one that was requested.
     val entryBuf = Array.fill[List[(ZQuad, V)]](4)(List.empty[(ZQuad, V)])
+    var innerDefault = outerDefault
     for (quad, value) <- quads do
       val descendancy = commonAncestor.descendancy(quad)
-      if !descendancy.isEverything then
+      if descendancy.isEverything then
+        innerDefault = Some(value)
+      else
         // If this quad is the same as the common ancestor we don't represent
         // it explicitly, rather we use the branch default value to pass its value
         // through to the children. If it's a child then we put it in the
@@ -152,13 +153,26 @@ object ZQuartering:
         entryBuf(childIndex) = entry :: entryBuf(childIndex)
     BranchingQuartering(
       commonAncestor,
-      overrideDefaultValue,
+      outerDefault,
+      innerDefault,
       entryBuf.map(b => Branch(b)))
 
 
-sealed trait ZQuartering[V]
+sealed trait ZQuartering[V]:
 
-case class LeafQuartering[V](value: V) extends ZQuartering[V]
+  /**
+   * Returns the value associated with this quad within this quartering. If the
+   * quad is equal to or within any of the quads given as input this will return
+   * the value associated with that quad, or the smallest such quad if there is
+   * more than one. If the quad is outside any of those quads and a default
+   * value was specified then that value will be returned. If no default was
+   * specified then it is not well-defined which value will be returned. It may
+   * be None, or it may be one of the values of the input quads.
+   */
+  def get(quad: ZQuad): Option[V]
+
+case class LeafQuartering[V](value: V) extends ZQuartering[V]:
+  override def get(quad: ZQuad): Option[V] = Some(value)
 
 /**
  * An individual branch from a branching quartering.
@@ -169,15 +183,41 @@ case class BranchingQuartering[V](
   /**
     * The common ancestor of all the branches.
     */
-  commonAncestor: ZQuad, 
-  
+  commonAncestor: ZQuad,
+
+  /** The default value to use for quads outside this quartering.
+   */
+  outerDefault: Option[V],
+
   /** The default value to use for quads within this branch that aren't
-    * explicitly mentioned in the children lists.
-    */
-  defaultValue: Option[V],
-  
+   * explicitly mentioned in the children lists.
+   */
+  innerDefault: Option[V],
+
   /**The array of branches; the branch at index i (0 <= i < 4) represents the
     * child branch at zoom level 1 with scalar i.
     */
   branches: IndexedSeq[Branch[V]]
-) extends ZQuartering[V]
+) extends ZQuartering[V]:
+
+  override def get(quad: ZQuad): Option[V] =
+    if quad == commonAncestor then
+      innerDefault
+    else if commonAncestor.isAncestor(quad) then
+      // Determine which branch to use.
+      val commonDescendancy = commonAncestor.descendancy(quad)
+      val branchQuad = commonDescendancy.toZoom(1)
+      // The ancestor which all the entries within the branch are descendants
+      // of.
+      val branchAncestor = commonAncestor.descendant(branchQuad)
+      val branchDescendancy = branchAncestor.descendancy(quad)
+
+      val entries = branches(branchQuad.scalar.toInt).entries
+      var best: Option[(ZQuad, V)] = None
+      for entry <- entries do
+        val (q, v) = entry
+        if q.isAncestor(branchDescendancy) && !best.exists(_._1.zoomLevel > q.zoomLevel) then
+          best = Some(q -> v)
+      best.map(_._2).orElse(innerDefault)
+    else
+      outerDefault

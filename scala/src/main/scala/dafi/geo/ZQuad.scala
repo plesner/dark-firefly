@@ -118,11 +118,14 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
     val newQuad = quad.ancestor(n)
     val newZoom = (zoomLevel - n).max(0)
     return new ZQuad(newQuad, newZoom)
-  
+
+  def isAncestor(that: ZQuad): Boolean =
+    zoomLevel <= that.zoomLevel && that.quad.ancestor(that.zoomLevel - zoomLevel) == this.quad
+
   def leastCommonAncestor(that: ZQuad): ZQuad =
     var a = this
     var b = that
-    
+
     // Normalize a and b so they're both at the same zoom level.
     if a.zoomLevel < b.zoomLevel then
       b = b.ancestor(b.zoomLevel - a.zoomLevel)
@@ -145,7 +148,7 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
 
     // Zoom out by that amount.
     a.ancestor(ancestorDeltaZoom)
-  
+
   /** Given a quad within this one, returns the quad that locates the given quad
    * within this one. That is, if you made this quad everything what would the
    * given quad be? Or, to express it differently, this returns the quad that
@@ -179,10 +182,24 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
 
   def wgs84Center: (Double, Double) =
     val (ux, uy) = this.unitCenter
-    return (-uy * 180 + 90, ux * 360 - 180)
+    (-uy * 180 + 90, ux * 360 - 180)
 
   def parent: ZQuad = ancestor(1)
 
   def scalar: Long = quad.toLong - ZQuad.zoomBias(zoomLevel)
 
   def toLong: Long = quad.toLong
+
+  private val Quadigits: String = "◰◳◱◲"
+
+  override def toString: String = f"ZQuad(${quad.toLong}: $toQuadigits)"
+
+  def toQuadigits: String =
+    var result = ""
+    var currentZoom = zoomLevel
+    var currentScalar = scalar
+    while currentZoom > 0 do
+      result = f"${Quadigits((currentScalar % 4).toInt)}$result"
+      currentScalar = currentScalar / 4
+      currentZoom = currentZoom - 1
+    result
