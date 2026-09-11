@@ -97,6 +97,17 @@ object ZQuad:
     val unitLon = (180.0 + geoLon) / 360.0
     fromUnit(unitLon, unitLat)
 
+  def leastCommonAncestor(items: Iterable[ZQuad]): ZQuad =
+    var isFirst = true
+    var commonAncestor = ZQuad.Everything
+    for item <- items do
+      if isFirst then
+        isFirst = false
+        commonAncestor = item
+      else
+        commonAncestor = commonAncestor.leastCommonAncestor(item)
+    commonAncestor
+
 
 case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
 
@@ -192,7 +203,7 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
 
   private val Quadigits: String = "◰◳◱◲"
 
-  override def toString: String = f"ZQuad(${quad.toLong}: $toQuadigits)"
+  override def toString: String = f"Z${quad.toLong}@$zoomLevel"
 
   def toQuadigits: String =
     var result = ""
