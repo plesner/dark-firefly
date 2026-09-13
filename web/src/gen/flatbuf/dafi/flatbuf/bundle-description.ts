@@ -4,7 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { EntitySetDescription } from './entity-set-description.js';
+import { EntitySetDescription } from '../../dafi/flatbuf/entity-set-description.js';
 
 
 export class BundleDescription {

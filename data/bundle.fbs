@@ -1,6 +1,6 @@
 include "utils.fbs";
 
-namespace dafi;
+namespace dafi.flatbuf;
 
 enum EntityType: byte {
   STOP = 0
@@ -22,7 +22,7 @@ table StopPackageHeader {
 }
 
 union PackageHeader {
-  stop: StopPackageHeader (id: 0)
+  stop: StopPackageHeader
 }
 
 table EntityPackageDescription {

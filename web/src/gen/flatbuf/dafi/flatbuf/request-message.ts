@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { ManifestRequestMessage } from './manifest-request-message.js';
+import { ManifestRequestMessage } from '../../dafi/flatbuf/manifest-request-message.js';
 
 
 export enum RequestMessage {

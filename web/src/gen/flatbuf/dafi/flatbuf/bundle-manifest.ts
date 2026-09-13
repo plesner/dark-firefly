@@ -4,7 +4,7 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { BundleDescription } from './bundle-description.js';
+import { BundleDescription } from '../../dafi/flatbuf/bundle-description.js';
 
 
 export class BundleManifest {

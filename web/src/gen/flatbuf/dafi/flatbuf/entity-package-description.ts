@@ -4,9 +4,9 @@
 
 import * as flatbuffers from 'flatbuffers';
 
-import { EntitySectionDescription } from './entity-section-description.js';
-import { PackageHeader, unionToPackageHeader, unionListToPackageHeader } from './package-header.js';
-import { URange } from './urange.js';
+import { EntitySectionDescription } from '../../dafi/flatbuf/entity-section-description.js';
+import { PackageHeader, unionToPackageHeader, unionListToPackageHeader } from '../../dafi/flatbuf/package-header.js';
+import { URange } from '../../dafi/flatbuf/urange.js';
 
 
 export class EntityPackageDescription {

@@ -3,7 +3,7 @@ import "./App.css";
 import { EngineContext } from "./engine/engine";
 
 import * as flatbuffers from 'flatbuffers'
-import { StopPackageHeader } from "./gen/flatc/dafi/stop-package-header";
+import { StopPackageHeader } from "./gen/flatbuf/dafi/flatbuf/stop-package-header";
 
 function App() {
   var engine = useContext(EngineContext);

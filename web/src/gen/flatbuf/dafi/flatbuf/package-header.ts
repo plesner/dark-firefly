@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { StopPackageHeader } from './stop-package-header.js';
+import { StopPackageHeader } from '../../dafi/flatbuf/stop-package-header.js';
 
 
 export enum PackageHeader {

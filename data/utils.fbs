@@ -1,4 +1,4 @@
-namespace dafi;
+namespace dafi.flatbuf;
 
 table URange {
   // The first value included in the interval.
@@ -9,4 +9,20 @@ table URange {
   // this is one *past* the end value you can't express the interval that covers
   // all UInt32s.
   limit: uint (id: 1);
+}
+
+struct ZQuadTreeLeaf {
+  descendancy: ulong (id: 0);
+  value: int (id: 1);
+}
+
+table ZQuadTreeBranch {
+  quarter: int8 (id: 0);
+  subtree: ZQuadTree (id: 1);
+}
+
+table ZQuadTree {
+  common_ancestor: ulong (id: 0);
+  leaves: [ZQuadTreeLeaf] (id: 1);
+  branches: [ZQuadTreeBranch] (id: 2);
 }

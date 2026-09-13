@@ -1,5 +1,9 @@
 package dafi.geo
 
+import com.google.flatbuffers.FlatBufferBuilder
+
+import dafi.flatbuf
+
 import scala.collection.mutable.ListBuffer
 
 object ZQuadTree:
@@ -8,7 +12,8 @@ object ZQuadTree:
     if items.size <= maxLeafSize then fromLeaves(items)
     else
       val Quartering(commonAncestor, leaves, branches) = quarterQuads(items)
-      val children = branches.map((q, bs) => Branch(q, ZQuadTree.from(bs, maxLeafSize)))
+      val children =
+        branches.map((q, bs) => Branch(q, ZQuadTree.from(bs, maxLeafSize)))
       ZQuadTree(
         commonAncestor = commonAncestor,
         leaves = leaves,
@@ -48,9 +53,22 @@ object ZQuadTree:
         )
     Quartering(commonAncestor, leaves, branches.filter(e => !(e eq null)))
 
-  case class Leaf[V](descendancy: ZQuad, value: V)
+  case class Leaf[V](descendancy: ZQuad, value: V):
+    def writeFlatBuf(buf: FlatBufferBuilder, valueToInt: V => Int): Int =
+      flatbuf.ZQuadTreeLeaf.createZQuadTreeLeaf(
+        buf,
+        descendancy.toLong,
+        valueToInt(value)
+      )
 
-  case class Branch[V](quarter: ZQuad, subtree: ZQuadTree[V])
+  case class Branch[V](quarter: ZQuad, subtree: ZQuadTree[V]):
+    def writeFlatBuf(buf: FlatBufferBuilder, valueToInt: V => Int): Int =
+      val subtreeIndex = subtree.writeFlatBuf(buf, valueToInt)
+      flatbuf.ZQuadTreeBranch.createZQuadTreeBranch(
+        buf,
+        quarter.toLong.toByte,
+        subtreeIndex
+      )
 
   private case class Quartering[V](
       commonAncestor: ZQuad,
@@ -68,6 +86,21 @@ case class ZQuadTree[V](
 
   def branchCount: Int = branches.size + branches.map(_.subtree.branchCount).sum
 
-  def maxDepth: Int = 1 + branches.map(_.subtree.maxDepth).maxOption.getOrElse(0)
+  def maxDepth: Int =
+    1 + branches.map(_.subtree.maxDepth).maxOption.getOrElse(0)
 
-  override def toString: String = f"ZQuadTree[$commonAncestor: ${leaves.size}](${branches.mkString(", ")})"
+  def writeFlatBuf(buf: FlatBufferBuilder, valueToInt: V => Int): Int =
+    flatbuf.ZQuadTree.startLeavesVector(buf, leaves.size)
+    for leaf <- leaves do leaf.writeFlatBuf(buf, valueToInt)
+    val leavesIndex = buf.endVector()
+    val branchIndexes = branches.map(b => b.writeFlatBuf(buf, valueToInt))
+    val branchesIndex = flatbuf.ZQuadTree.createBranchesVector(buf, branchIndexes.toArray)
+    flatbuf.ZQuadTree.createZQuadTree(
+      buf,
+      commonAncestor.toLong,
+      leavesIndex,
+      branchesIndex
+    )
+
+  override def toString: String =
+    f"ZQuadTree[$commonAncestor: ${leaves.size}](${branches.mkString(", ")})"
