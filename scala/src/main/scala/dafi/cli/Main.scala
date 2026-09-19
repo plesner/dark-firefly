@@ -1,8 +1,9 @@
 package dafi.cli
 
 import com.google.flatbuffers.FlatBufferBuilder
-import dafi.geo.ZQuadTree
-import dafi.gtfs.GtfsArchive
+import dafi.ctfs.CtfsBundle
+import dafi.flat.Extensions.*
+import dafi.steps.{PipelineOptions, ReadStopsOptions, Steps}
 import scopt.OParser
 
 import java.nio.file.{Files, Paths}
@@ -17,14 +18,16 @@ class Main(args: Array[String]):
 
   private val builder = OParser.builder[Options]
   private val argParser =
-    import builder._
+    import builder.*
     OParser.sequence(
       programName("dafi"),
       cmd("gtfs")
         .action((_, c) => c.copy(handler = Some(handle_gtfs)))
         .children(
-          opt[String]("input").action((v, options) => options.copy(input = Some(v))),
-          opt[String]("output").action((v, options) => options.copy(output = Some(v)))
+          opt[String]("input")
+            .action((v, options) => options.copy(input = Some(v))),
+          opt[String]("output")
+            .action((v, options) => options.copy(output = Some(v)))
         )
     )
 
@@ -36,12 +39,16 @@ class Main(args: Array[String]):
         System.exit(1)
 
   private def handle_gtfs(opts: Options): Unit =
-    val arch = GtfsArchive.open(opts.input.get)
-    val stops = arch.stops()
-    val q = ZQuadTree.from(stops.map(s => s.quad -> s), 256)
+    val stepsOptions =
+      PipelineOptions(
+        gtfsPath = opts.input.get,
+        readStops =
+          ReadStopsOptions().copy(idRegex = "^0*(?<id>[1-9][0-9]*)G*$")
+      )
+    val pipeline = Steps.builder(stepsOptions).newPipeline
+    val bundle = pipeline.step[CtfsBundle].get()
     val buf = new FlatBufferBuilder()
-    val root = q.writeFlatBuf(buf, s => s.hashCode())
-    buf.finish(root)
+    buf.finishSection(bundle.createManifestSection(buf))
     Files.write(Paths.get(opts.output.get), buf.sizedByteArray())
 
 def main(args: Array[String]): Unit =

@@ -15,6 +15,9 @@ object GtfsArchive:
 
 class GtfsStop(row: Map[String, String]):
 
+  def id: String =
+    row("stop_id")
+
   def name: String =
     row("stop_name")
 

@@ -1,19 +1,23 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import "./App.css";
 import { EngineContext } from "./engine/engine";
+import { useEffect } from "react";
 
-import * as flatbuffers from 'flatbuffers'
-import { StopPackageHeader } from "./gen/flatbuf/dafi/flatbuf/stop-package-header";
+function EngineOutput(params: { data: Uint8Array }) {
+  var engine = useContext(EngineContext);
+  return <>{engine.getEight(params.data).toString()}</>;
+}
 
 function App() {
-  var engine = useContext(EngineContext);
-  let builder = new flatbuffers.Builder(1024);
-  StopPackageHeader.startStopPackageHeader(builder);
-  StopPackageHeader.addQuad(builder, 101);
-  let stopHeader = StopPackageHeader.endStopPackageHeader(builder);
-  builder.finish(stopHeader);
-  let data = builder.asUint8Array();
-  return <>{engine.getEight(data).toString()}</>;
+  const [bytes, setBytes] = useState<Uint8Array>();
+
+  useEffect(() => {
+    fetch("http://localhost:7120/test.ctfs")
+      .then(response => response.bytes())
+      .then(b => setBytes(b))
+  }, []);
+
+  return <>{bytes && <EngineOutput data={bytes} />}</>;
 }
 
 export default App;

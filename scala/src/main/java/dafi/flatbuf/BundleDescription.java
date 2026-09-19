@@ -27,18 +27,23 @@ public final class BundleDescription extends Table {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public BundleDescription __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public dafi.flatbuf.EntitySetDescription stops() { return stops(new dafi.flatbuf.EntitySetDescription()); }
-  public dafi.flatbuf.EntitySetDescription stops(dafi.flatbuf.EntitySetDescription obj) { int o = __offset(4); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public dafi.flatbuf.EntitySetDescription entitySets(int j) { return entitySets(new dafi.flatbuf.EntitySetDescription(), j); }
+  public dafi.flatbuf.EntitySetDescription entitySets(dafi.flatbuf.EntitySetDescription obj, int j) { int o = __offset(4); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
+  public int entitySetsLength() { int o = __offset(4); return o != 0 ? __vector_len(o) : 0; }
+  public dafi.flatbuf.EntitySetDescription.Vector entitySetsVector() { return entitySetsVector(new dafi.flatbuf.EntitySetDescription.Vector()); }
+  public dafi.flatbuf.EntitySetDescription.Vector entitySetsVector(dafi.flatbuf.EntitySetDescription.Vector obj) { int o = __offset(4); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
   public static int createBundleDescription(FlatBufferBuilder builder,
-      int stopsOffset) {
+      int entitySetsOffset) {
     builder.startTable(1);
-    BundleDescription.addStops(builder, stopsOffset);
+    BundleDescription.addEntitySets(builder, entitySetsOffset);
     return BundleDescription.endBundleDescription(builder);
   }
 
   public static void startBundleDescription(FlatBufferBuilder builder) { builder.startTable(1); }
-  public static void addStops(FlatBufferBuilder builder, int stopsOffset) { builder.addOffset(0, stopsOffset, 0); }
+  public static void addEntitySets(FlatBufferBuilder builder, int entitySetsOffset) { builder.addOffset(0, entitySetsOffset, 0); }
+  public static int createEntitySetsVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
+  public static void startEntitySetsVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
   public static int endBundleDescription(FlatBufferBuilder builder) {
     int o = builder.endTable();
     return o;

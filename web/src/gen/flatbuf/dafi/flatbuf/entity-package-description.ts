@@ -4,9 +4,9 @@
 
 import * as flatbuffers from 'flatbuffers';
 
+import { EntityPackageHeader, unionToEntityPackageHeader, unionListToEntityPackageHeader } from '../../dafi/flatbuf/entity-package-header.js';
 import { EntitySectionDescription } from '../../dafi/flatbuf/entity-section-description.js';
-import { PackageHeader, unionToPackageHeader, unionListToPackageHeader } from '../../dafi/flatbuf/package-header.js';
-import { URange } from '../../dafi/flatbuf/urange.js';
+import { IntRange } from '../../dafi/flatbuf/int-range.js';
 
 
 export class EntityPackageDescription {
@@ -42,9 +42,9 @@ sectionsLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-gids(obj?:URange):URange|null {
+gids(obj?:IntRange):IntRange|null {
   const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? (obj || new URange()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? (obj || new IntRange()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
 }
 
 label():string|null
@@ -54,9 +54,9 @@ label(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-headerType():PackageHeader {
+headerType():EntityPackageHeader {
   const offset = this.bb!.__offset(this.bb_pos, 12);
-  return offset ? this.bb!.readUint8(this.bb_pos + offset) : PackageHeader.NONE;
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : EntityPackageHeader.NONE;
 }
 
 header<T extends flatbuffers.Table>(obj:any):any|null {
@@ -96,8 +96,8 @@ static addLabel(builder:flatbuffers.Builder, labelOffset:flatbuffers.Offset) {
   builder.addFieldOffset(3, labelOffset, 0);
 }
 
-static addHeaderType(builder:flatbuffers.Builder, headerType:PackageHeader) {
-  builder.addFieldInt8(4, headerType, PackageHeader.NONE);
+static addHeaderType(builder:flatbuffers.Builder, headerType:EntityPackageHeader) {
+  builder.addFieldInt8(4, headerType, EntityPackageHeader.NONE);
 }
 
 static addHeader(builder:flatbuffers.Builder, headerOffset:flatbuffers.Offset) {

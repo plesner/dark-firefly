@@ -14,29 +14,39 @@ table EntitySectionDescription {
 table EntitySetDescription {
   type: EntityType (id: 0);
   packages: [EntityPackageDescription] (id: 1);
-  entity_count: int (id: 2);
 }
 
 table StopPackageHeader {
   quad: uint (id: 0);
 }
 
-union PackageHeader {
+union EntityPackageHeader {
   stop: StopPackageHeader
 }
 
 table EntityPackageDescription {
   pid: int (id: 0);
   sections: [EntitySectionDescription] (id: 1);
-  gids: URange (id: 2);
+  gids: IntRange (id: 2);
   label: string (id: 3);
-  header: PackageHeader (id: 5);
+  header: EntityPackageHeader (id: 5);
 }
 
 table BundleDescription {
-  stops: EntitySetDescription (id: 0);
+  entity_sets: [EntitySetDescription] (id: 0);
 }
 
 table BundleManifest {
   description: BundleDescription (id: 0);
 }
+
+union BundleSectionContents {
+  manifest: BundleManifest
+}
+
+table BundleSection {
+  contents: BundleSectionContents (id: 1);
+}
+
+root_type BundleSection;
+file_identifier "CTFS";

@@ -5,8 +5,8 @@
 using namespace emscripten;
 
 float get_eight(const std::string data) {
-  auto monster = flatbuffers::GetRoot<dafi::flatbuf::StopPackageHeader>(data.c_str());
-  return monster->quad();
+  auto tree = flatbuffers::GetRoot<dafi::flatbuf::ZQuadTree>(data.c_str());
+  return tree->branches()->Get(0)->quarter();
 }
 
 EMSCRIPTEN_BINDINGS(module) {

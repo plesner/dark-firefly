@@ -33,8 +33,8 @@ public final class EntityPackageDescription extends Table {
   public int sectionsLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
   public dafi.flatbuf.EntitySectionDescription.Vector sectionsVector() { return sectionsVector(new dafi.flatbuf.EntitySectionDescription.Vector()); }
   public dafi.flatbuf.EntitySectionDescription.Vector sectionsVector(dafi.flatbuf.EntitySectionDescription.Vector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
-  public dafi.flatbuf.URange gids() { return gids(new dafi.flatbuf.URange()); }
-  public dafi.flatbuf.URange gids(dafi.flatbuf.URange obj) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
+  public dafi.flatbuf.IntRange gids() { return gids(new dafi.flatbuf.IntRange()); }
+  public dafi.flatbuf.IntRange gids(dafi.flatbuf.IntRange obj) { int o = __offset(8); return o != 0 ? obj.__assign(__indirect(o + bb_pos), bb) : null; }
   public String label() { int o = __offset(10); return o != 0 ? __string(o + bb_pos) : null; }
   public ByteBuffer labelAsByteBuffer() { return __vector_as_bytebuffer(10, 1); }
   public ByteBuffer labelInByteBuffer(ByteBuffer _bb) { return __vector_in_bytebuffer(_bb, 10, 1); }

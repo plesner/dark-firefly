@@ -128,7 +128,7 @@ case class ZQuad(quad: ZQuadLong, zoomLevel: Int):
   def ancestor(n: Int): ZQuad =
     val newQuad = quad.ancestor(n)
     val newZoom = (zoomLevel - n).max(0)
-    return new ZQuad(newQuad, newZoom)
+    new ZQuad(newQuad, newZoom)
 
   def isAncestor(that: ZQuad): Boolean =
     zoomLevel <= that.zoomLevel && that.quad.ancestor(that.zoomLevel - zoomLevel) == this.quad

@@ -16,8 +16,8 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
 namespace dafi {
 namespace flatbuf {
 
-struct URange;
-struct URangeBuilder;
+struct IntRange;
+struct IntRangeBuilder;
 
 struct ZQuadTreeLeaf;
 
@@ -55,52 +55,52 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) ZQuadTreeLeaf FLATBUFFERS_FINAL_CLASS {
 };
 FLATBUFFERS_STRUCT_END(ZQuadTreeLeaf, 16);
 
-struct URange FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef URangeBuilder Builder;
+struct IntRange FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef IntRangeBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_FIRST = 4,
     VT_LIMIT = 6
   };
-  uint32_t first() const {
-    return GetField<uint32_t>(VT_FIRST, 0);
+  int32_t first() const {
+    return GetField<int32_t>(VT_FIRST, 0);
   }
-  uint32_t limit() const {
-    return GetField<uint32_t>(VT_LIMIT, 0);
+  int32_t limit() const {
+    return GetField<int32_t>(VT_LIMIT, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_FIRST, 4) &&
-           VerifyField<uint32_t>(verifier, VT_LIMIT, 4) &&
+           VerifyField<int32_t>(verifier, VT_FIRST, 4) &&
+           VerifyField<int32_t>(verifier, VT_LIMIT, 4) &&
            verifier.EndTable();
   }
 };
 
-struct URangeBuilder {
-  typedef URange Table;
+struct IntRangeBuilder {
+  typedef IntRange Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_first(uint32_t first) {
-    fbb_.AddElement<uint32_t>(URange::VT_FIRST, first, 0);
+  void add_first(int32_t first) {
+    fbb_.AddElement<int32_t>(IntRange::VT_FIRST, first, 0);
   }
-  void add_limit(uint32_t limit) {
-    fbb_.AddElement<uint32_t>(URange::VT_LIMIT, limit, 0);
+  void add_limit(int32_t limit) {
+    fbb_.AddElement<int32_t>(IntRange::VT_LIMIT, limit, 0);
   }
-  explicit URangeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit IntRangeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<URange> Finish() {
+  ::flatbuffers::Offset<IntRange> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<URange>(end);
+    auto o = ::flatbuffers::Offset<IntRange>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<URange> CreateURange(
+inline ::flatbuffers::Offset<IntRange> CreateIntRange(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t first = 0,
-    uint32_t limit = 0) {
-  URangeBuilder builder_(_fbb);
+    int32_t first = 0,
+    int32_t limit = 0) {
+  IntRangeBuilder builder_(_fbb);
   builder_.add_limit(limit);
   builder_.add_first(first);
   return builder_.Finish();

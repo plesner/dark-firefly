@@ -41,13 +41,8 @@ packagesLength():number {
   return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
-entityCount():number {
-  const offset = this.bb!.__offset(this.bb_pos, 8);
-  return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
-}
-
 static startEntitySetDescription(builder:flatbuffers.Builder) {
-  builder.startObject(3);
+  builder.startObject(2);
 }
 
 static addType(builder:flatbuffers.Builder, type:EntityType) {
@@ -70,20 +65,15 @@ static startPackagesVector(builder:flatbuffers.Builder, numElems:number) {
   builder.startVector(4, numElems, 4);
 }
 
-static addEntityCount(builder:flatbuffers.Builder, entityCount:number) {
-  builder.addFieldInt32(2, entityCount, 0);
-}
-
 static endEntitySetDescription(builder:flatbuffers.Builder):flatbuffers.Offset {
   const offset = builder.endObject();
   return offset;
 }
 
-static createEntitySetDescription(builder:flatbuffers.Builder, type:EntityType, packagesOffset:flatbuffers.Offset, entityCount:number):flatbuffers.Offset {
+static createEntitySetDescription(builder:flatbuffers.Builder, type:EntityType, packagesOffset:flatbuffers.Offset):flatbuffers.Offset {
   EntitySetDescription.startEntitySetDescription(builder);
   EntitySetDescription.addType(builder, type);
   EntitySetDescription.addPackages(builder, packagesOffset);
-  EntitySetDescription.addEntityCount(builder, entityCount);
   return EntitySetDescription.endEntitySetDescription(builder);
 }
 }

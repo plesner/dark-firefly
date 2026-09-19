@@ -25,17 +25,34 @@ static getSizePrefixedRootAsBundleDescription(bb:flatbuffers.ByteBuffer, obj?:Bu
   return (obj || new BundleDescription()).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 }
 
-stops(obj?:EntitySetDescription):EntitySetDescription|null {
+entitySets(index: number, obj?:EntitySetDescription):EntitySetDescription|null {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? (obj || new EntitySetDescription()).__init(this.bb!.__indirect(this.bb_pos + offset), this.bb!) : null;
+  return offset ? (obj || new EntitySetDescription()).__init(this.bb!.__indirect(this.bb!.__vector(this.bb_pos + offset) + index * 4), this.bb!) : null;
+}
+
+entitySetsLength():number {
+  const offset = this.bb!.__offset(this.bb_pos, 4);
+  return offset ? this.bb!.__vector_len(this.bb_pos + offset) : 0;
 }
 
 static startBundleDescription(builder:flatbuffers.Builder) {
   builder.startObject(1);
 }
 
-static addStops(builder:flatbuffers.Builder, stopsOffset:flatbuffers.Offset) {
-  builder.addFieldOffset(0, stopsOffset, 0);
+static addEntitySets(builder:flatbuffers.Builder, entitySetsOffset:flatbuffers.Offset) {
+  builder.addFieldOffset(0, entitySetsOffset, 0);
+}
+
+static createEntitySetsVector(builder:flatbuffers.Builder, data:flatbuffers.Offset[]):flatbuffers.Offset {
+  builder.startVector(4, data.length, 4);
+  for (let i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]!);
+  }
+  return builder.endVector();
+}
+
+static startEntitySetsVector(builder:flatbuffers.Builder, numElems:number) {
+  builder.startVector(4, numElems, 4);
 }
 
 static endBundleDescription(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -43,9 +60,9 @@ static endBundleDescription(builder:flatbuffers.Builder):flatbuffers.Offset {
   return offset;
 }
 
-static createBundleDescription(builder:flatbuffers.Builder, stopsOffset:flatbuffers.Offset):flatbuffers.Offset {
+static createBundleDescription(builder:flatbuffers.Builder, entitySetsOffset:flatbuffers.Offset):flatbuffers.Offset {
   BundleDescription.startBundleDescription(builder);
-  BundleDescription.addStops(builder, stopsOffset);
+  BundleDescription.addEntitySets(builder, entitySetsOffset);
   return BundleDescription.endBundleDescription(builder);
 }
 }

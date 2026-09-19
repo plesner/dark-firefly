@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-export { URange } from './flatbuf/urange.js';
+export { IntRange } from './flatbuf/int-range.js';
 export { ZQuadTree } from './flatbuf/zquad-tree.js';
 export { ZQuadTreeBranch } from './flatbuf/zquad-tree-branch.js';
 export { ZQuadTreeLeaf } from './flatbuf/zquad-tree-leaf.js';

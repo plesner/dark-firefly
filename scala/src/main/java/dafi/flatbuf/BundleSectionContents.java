@@ -3,12 +3,12 @@
 package dafi.flatbuf;
 
 @SuppressWarnings("unused")
-public final class PackageHeader {
-  private PackageHeader() { }
+public final class BundleSectionContents {
+  private BundleSectionContents() { }
   public static final byte NONE = 0;
-  public static final byte stop = 1;
+  public static final byte manifest = 1;
 
-  public static final String[] names = { "NONE", "stop", };
+  public static final String[] names = { "NONE", "manifest", };
 
   public static String name(int e) { return names[e]; }
 }
