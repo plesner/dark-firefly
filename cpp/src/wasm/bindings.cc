@@ -1,6 +1,6 @@
 #include <emscripten/bind.h>
 
-#include "gen/flatbuf/bundle_generated.h"
+#include "../gen/flatbuf/bundle_generated.h"
 
 using namespace emscripten;
 
