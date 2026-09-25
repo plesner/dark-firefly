@@ -1,0 +1,19 @@
+namespace dafi.flatbuf;
+
+table LongArrayColumn {
+  values: [long] (id: 0);
+}
+
+table StringArrayColumn {
+  values: [string] (id: 0);
+}
+
+union ColumnContents {
+  LongArrayColumn,
+  StringArrayColumn
+}
+
+table AttribColumn {
+  attrib: int (id: 0);
+  contents: ColumnContents (id: 2);
+}

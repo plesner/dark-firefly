@@ -3,32 +3,36 @@
 /* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
 import { BundleManifest } from '../../dafi/flatbuf/bundle-manifest.js';
+import { StopsSection } from '../../dafi/flatbuf/stops-section.js';
 
 
 export enum BundleSectionContents {
   NONE = 0,
-  manifest = 1
+  manifest = 1,
+  stops = 2
 }
 
 export function unionToBundleSectionContents(
   type: BundleSectionContents,
-  accessor: (obj:BundleManifest) => BundleManifest|null
-): BundleManifest|null {
+  accessor: (obj:BundleManifest|StopsSection) => BundleManifest|StopsSection|null
+): BundleManifest|StopsSection|null {
   switch(BundleSectionContents[type]) {
     case 'NONE': return null; 
     case 'manifest': return accessor(new BundleManifest())! as BundleManifest;
+    case 'stops': return accessor(new StopsSection())! as StopsSection;
     default: return null;
   }
 }
 
 export function unionListToBundleSectionContents(
   type: BundleSectionContents, 
-  accessor: (index: number, obj:BundleManifest) => BundleManifest|null, 
+  accessor: (index: number, obj:BundleManifest|StopsSection) => BundleManifest|StopsSection|null, 
   index: number
-): BundleManifest|null {
+): BundleManifest|StopsSection|null {
   switch(BundleSectionContents[type]) {
     case 'NONE': return null; 
     case 'manifest': return accessor(index, new BundleManifest())! as BundleManifest;
+    case 'stops': return accessor(index, new StopsSection())! as StopsSection;
     default: return null;
   }
 }

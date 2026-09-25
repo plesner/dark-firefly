@@ -1,0 +1,14 @@
+include "columns.fbs";
+
+namespace dafi.flatbuf;
+
+enum StopAttrib: ubyte {
+  DESCENDANCY = 0,
+  SHORT_NAME = 1,
+  SECONDARY_NAME = 2,
+  NONE = 255
+}
+
+table StopsSection {
+  columns: [AttribColumn] (id: 0);
+}

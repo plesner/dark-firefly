@@ -1,20 +1,31 @@
 package dafi.ctfs
 
-import com.google.flatbuffers.{FlatBufferBuilder}
-import dafi.flat.{FlatOffset, SectionContentsOffset}
-import dafi.flatbuf.{BundleSection}
+import com.google.flatbuffers.FlatBufferBuilder
 import dafi.flat.Extensions.*
+import dafi.flat.{FlatOffset, SectionContentsUnion}
+import dafi.flatbuf.BundleSection
 
-case class CtfsBundle(entitySets: List[CtfsEntitySet]):
+private class CtfsManifest(bundle: CtfsBundle) extends CtfsSection:
 
-  def createManifestSection(buf: FlatBufferBuilder): FlatOffset[BundleSection] =
-    buf.createBundleSection(
-      contents = SectionContentsOffset.manifest(
-        buf.createBundleManifest(
-          description = buf.createBundleDescription(
+  override def path: String = "manifest.sec"
+
+  override def writeSection(
+      buf: FlatBufferBuilder
+  ): FlatOffset[BundleSection] =
+    buf.writeBundleSection(
+      contents = SectionContentsUnion.manifest(
+        buf.writeBundleManifest(
+          description = buf.writeBundleDescription(
             entitySets =
-              entitySets.map(s => s.createDescription(buf)).toFlatVector
+              bundle.entitySets.map(s => s.writeDescription(buf)).toFlatVector
           )
         )
       )
     )
+
+case class CtfsBundle(entitySets: List[CtfsEntitySet]):
+
+  val manifest: CtfsManifest = CtfsManifest(this)
+
+  def buildSections(): List[CtfsSection] =
+    manifest :: entitySets.flatMap(s => s.sections)

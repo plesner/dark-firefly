@@ -28,7 +28,7 @@ static getSizePrefixedRootAsEntitySetDescription(bb:flatbuffers.ByteBuffer, obj?
 
 type():EntityType {
   const offset = this.bb!.__offset(this.bb_pos, 4);
-  return offset ? this.bb!.readInt8(this.bb_pos + offset) : EntityType.STOP;
+  return offset ? this.bb!.readUint8(this.bb_pos + offset) : EntityType.STOP;
 }
 
 packages(index: number, obj?:EntityPackageDescription):EntityPackageDescription|null {

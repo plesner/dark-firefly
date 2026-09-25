@@ -19,6 +19,6 @@ object Steps:
       .addStep[GtfsArchive](ReadGtfsArchive)
       .addStep[Stops](ReadStops)
       .addStep[StopSubdivs](BuildStopSubdivs)
-      .addStep[StopPackages](CreateStopPackages)
+      .addStep[StopPackages](BuildStopPackages)
       .addStep[CtfsBundle](ExportBundle)
       .addStep[StopEntitySet](ExportStops)

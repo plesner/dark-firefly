@@ -1,22 +1,8 @@
 package dafi.flat
 
 import com.google.flatbuffers.{FlatBufferBuilder, Table}
-import dafi.flatbuf.{BundleDescription, BundleManifest, BundleSection, BundleSectionContents, EntityPackageDescription, EntityPackageHeader, EntitySectionDescription, EntitySetDescription, IntRange, StopPackageHeader}
+import dafi.flatbuf.*
 import dafi.geo.ZQuad
-
-object SectionContentsOffset:
-  def manifest(offset: FlatOffset[BundleManifest]): SectionContentsOffset =
-    SectionContentsOffset(BundleSectionContents.manifest, offset)
-
-case class SectionContentsOffset(tag: Byte, offset: FlatOffset[Table])
-
-object EntityPackageHeaderOffset:
-  def stop(offset: FlatOffset[StopPackageHeader]): EntityPackageHeaderOffset =
-    EntityPackageHeaderOffset(EntityPackageHeader.stop, offset)
-  val empty: EntityPackageHeaderOffset =
-    EntityPackageHeaderOffset(EntityPackageHeader.NONE, FlatOffset(0))
-
-case class EntityPackageHeaderOffset(tag: Byte, offset: FlatOffset[Table])
 
 object Extensions:
 
@@ -25,8 +11,8 @@ object Extensions:
 
   extension (buf: FlatBufferBuilder)
 
-    def createBundleSection(
-        contents: SectionContentsOffset
+    def writeBundleSection(
+        contents: FlatUnion[SectionContentsUnion]
     ): FlatOffset[BundleSection] =
       FlatOffset(
         BundleSection.createBundleSection(
@@ -36,12 +22,12 @@ object Extensions:
         )
       )
 
-    def createBundleManifest(
+    def writeBundleManifest(
         description: FlatOffset[BundleDescription]
     ): FlatOffset[BundleManifest] =
       FlatOffset(BundleManifest.createBundleManifest(buf, description.toInt))
 
-    def createBundleDescription(
+    def writeBundleDescription(
         entitySets: FlatVector[EntitySetDescription]
     ): FlatOffset[BundleDescription] =
       FlatOffset(
@@ -51,7 +37,7 @@ object Extensions:
         )
       )
 
-    def createEntitySetDescription(
+    def writeEntitySetDescription(
         tag: Byte,
         packages: FlatVector[EntityPackageDescription]
     ): FlatOffset[EntitySetDescription] =
@@ -63,12 +49,12 @@ object Extensions:
         )
       )
 
-    def createEntityPackageDescription(
+    def writeEntityPackageDescription(
         pid: Int,
         sections: FlatVector[EntitySectionDescription],
         gids: FlatOffset[IntRange],
         label: FlatOffset[String],
-        header: EntityPackageHeaderOffset
+        header: FlatUnion[PackageHeaderUnion]
     ): FlatOffset[EntityPackageDescription] =
       FlatOffset(
         EntityPackageDescription.createEntityPackageDescription(
@@ -82,30 +68,69 @@ object Extensions:
         )
       )
 
-    def createEntitySectionDescription(
+    def writeEntitySectionDescription(
         path: FlatOffset[String],
-        attributes: Int
+        attribMask: Int
     ): FlatOffset[EntitySectionDescription] =
       FlatOffset(
         EntitySectionDescription.createEntitySectionDescription(
           buf,
           path.toInt,
-          attributes
+          attribMask
         )
       )
 
-    def createStopPackageHeader(quad: ZQuad): FlatOffset[StopPackageHeader] =
+    def writeStopPackageHeader(quad: ZQuad): FlatOffset[StopPackageHeader] =
       FlatOffset(
         StopPackageHeader.createStopPackageHeader(buf, quad.toLong)
       )
 
-    def createIntRange(first: Int, limit: Int): FlatOffset[IntRange] =
+    def writeStopsSection(
+        columns: FlatVector[AttribColumn]
+    ): FlatOffset[StopsSection] =
+      FlatOffset(
+        StopsSection.createStopsSection(
+          buf,
+          StopsSection.createColumnsVector(buf, columns.toInts)
+        )
+      )
+
+    def writeAttribColumn(
+        attrib: Int,
+        contents: FlatUnion[ColumnUnion]
+    ): FlatOffset[AttribColumn] =
+      FlatOffset(
+        AttribColumn.createAttribColumn(
+          buf,
+          attrib,
+          contents.tag,
+          contents.offset.toInt
+        )
+      )
+
+    def writeLongArrayColumn(values: Array[Long]): FlatOffset[LongArrayColumn] =
+      FlatOffset(
+        LongArrayColumn.createLongArrayColumn(
+          buf,
+          LongArrayColumn.createValuesVector(buf, values)
+        )
+      )
+
+    def writeStringArrayColumn(values: FlatVector[String]): FlatOffset[StringArrayColumn] =
+      FlatOffset(
+        StringArrayColumn.createStringArrayColumn(
+          buf,
+          StringArrayColumn.createValuesVector(buf, values.toInts)
+        )
+      )
+
+    def writeIntRange(first: Int, limit: Int): FlatOffset[IntRange] =
       FlatOffset(IntRange.createIntRange(buf, first, limit))
 
-    def createIntRange(range: (Int, Int)): FlatOffset[IntRange] =
-      createIntRange(range._1, range._2)
+    def writeIntRange(range: (Int, Int)): FlatOffset[IntRange] =
+      writeIntRange(range._1, range._2)
 
-    def createText(str: String): FlatOffset[String] =
+    def writeString(str: String): FlatOffset[String] =
       FlatOffset(buf.createString(str))
 
     def finishSection(root: FlatOffset[BundleSection]): Unit =

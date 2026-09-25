@@ -7,8 +7,9 @@ public final class BundleSectionContents {
   private BundleSectionContents() { }
   public static final byte NONE = 0;
   public static final byte manifest = 1;
+  public static final byte stops = 2;
 
-  public static final String[] names = { "NONE", "manifest", };
+  public static final String[] names = { "NONE", "manifest", "stops", };
 
   public static String name(int e) { return names[e]; }
 }

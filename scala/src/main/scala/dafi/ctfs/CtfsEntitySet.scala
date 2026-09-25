@@ -12,23 +12,21 @@ import dafi.flatbuf.{
 import dafi.flat.*
 import dafi.flat.Extensions.*
 
-trait CtfsEntitySection:
+trait CtfsEntitySection extends CtfsSection:
 
-  def path: String
-
-  def attributes: Int
+  def attribMask: Int
 
   def createDescription(
       buf: FlatBufferBuilder
   ): FlatOffset[EntitySectionDescription] =
-    buf.createEntitySectionDescription(
-      path = buf.createText(path),
-      attributes = attributes
+    buf.writeEntitySectionDescription(
+      path = buf.writeString(path),
+      attribMask = attribMask
     )
 
 trait CtfsEntityPackageHeader:
 
-  def createHeader(buf: FlatBufferBuilder): EntityPackageHeaderOffset
+  def writeHeader(buf: FlatBufferBuilder): FlatUnion[PackageHeaderUnion]
 
 
 trait CtfsEntityPackage:
@@ -46,12 +44,12 @@ trait CtfsEntityPackage:
   def createDescription(
       buf: FlatBufferBuilder
   ): FlatOffset[EntityPackageDescription] =
-    val headerOffset = header.map(_.createHeader(buf)).getOrElse(EntityPackageHeaderOffset.empty)
-    buf.createEntityPackageDescription(
+    val headerOffset = header.map(_.writeHeader(buf)).getOrElse(PackageHeaderUnion.empty)
+    buf.writeEntityPackageDescription(
       pid = pid,
       sections = sections.map(s => s.createDescription(buf)).toFlatVector,
-      gids = buf.createIntRange(gids),
-      label = buf.createText(label),
+      gids = buf.writeIntRange(gids),
+      label = buf.writeString(label),
       header = headerOffset
     )
 
@@ -60,11 +58,14 @@ trait CtfsEntitySet:
   def entityType: Byte
 
   def packages: List[CtfsEntityPackage]
+  
+  def sections: List[CtfsSection] =
+    packages.flatMap(p => p.sections)
 
-  def createDescription(
+  def writeDescription(
       buf: FlatBufferBuilder
   ): FlatOffset[EntitySetDescription] =
-    buf.createEntitySetDescription(
+    buf.writeEntitySetDescription(
       tag = entityType,
       packages = packages.map(p => p.createDescription(buf)).toFlatVector
     )

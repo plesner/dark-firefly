@@ -6,9 +6,9 @@ package dafi.flatbuf;
 public final class EntityPackageHeader {
   private EntityPackageHeader() { }
   public static final byte NONE = 0;
-  public static final byte stop = 1;
+  public static final byte stops = 1;
 
-  public static final String[] names = { "NONE", "stop", };
+  public static final String[] names = { "NONE", "stops", };
 
   public static String name(int e) { return names[e]; }
 }

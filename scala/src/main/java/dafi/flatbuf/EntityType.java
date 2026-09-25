@@ -5,7 +5,7 @@ package dafi.flatbuf;
 @SuppressWarnings("unused")
 public final class EntityType {
   private EntityType() { }
-  public static final byte STOP = 0;
+  public static final int STOP = 0;
 
   public static final String[] names = { "STOP", };
 

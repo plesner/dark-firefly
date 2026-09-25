@@ -4,7 +4,9 @@ FLATBUFS_ROOT="${FLATBUFS_ROOT:-/usr/bin}"
 
 ALL_FILES="""
 data/bundle.fbs
+data/columns.fbs
 data/protocol.fbs
+data/stops.fbs
 data/utils.fbs
 """
 

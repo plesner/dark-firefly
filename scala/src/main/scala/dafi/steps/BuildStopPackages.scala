@@ -11,7 +11,7 @@ case class StopPackage(
     stops: List[CtfsStop]
 )
 
-object CreateStopPackages extends PipelineStepObject[StopPackages]:
+object BuildStopPackages extends PipelineStepObject[StopPackages]:
 
   override def prepare(pipeline: Pipeline): PipelineStep[StopPackages] =
     val stops = pipeline.step[Stops]

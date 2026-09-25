@@ -7,16 +7,17 @@ import dafi.pipeline.{Pipeline, PipelineStep, PipelineStepObject}
 import java.util.regex.Pattern
 
 case class ReadStopsOptions(
-    idRegex: String = "^(?<id>.*)$"
+    idRegex: String = "^(?<id>.*)$",
+    nameRegex: String = "^(?<short>[^(]*)\\((?<secondary>[^)]*)\\)"
 )
 
 case class NormalStop(
     normalId: String,
-    primaryGtfs: GtfsStop,
-    secondaryGtfs: List[GtfsStop]
-):
-
-  def quad: ZQuad = primaryGtfs.quad
+    quad: ZQuad,
+    name: String,
+    shortName: String,
+    secondaryName: String
+)
 
 object ReadStops extends PipelineStepObject[Stops]:
 
@@ -28,13 +29,29 @@ object ReadStops extends PipelineStepObject[Stops]:
   private def execute(arch: GtfsArchive, options: ReadStopsOptions): Stops =
     val gtfsStops = arch.stops()
     val idRegex = Pattern.compile(options.idRegex)
+    val nameRegex = Pattern.compile(options.nameRegex)
     val groupedStops = gtfsStops.groupBy(stop =>
       val matcher = idRegex.matcher(stop.id)
       assert(matcher.find())
       matcher.group("id")
     )
+
+    def createNormalStop(nid: String, stops: List[GtfsStop]): NormalStop =
+      val primary = stops.head
+      val nameMatcher = nameRegex.matcher(primary.name)
+      val (shortName, secondaryName) = if nameMatcher.find()
+        then (nameMatcher.group("short"), nameMatcher.group("secondary"))
+        else (primary.name, "")
+      NormalStop(
+        normalId = nid,
+        quad = primary.quad,
+        name = primary.name,
+        shortName = shortName.trim,
+        secondaryName = secondaryName.trim
+      )
+
     val normalStops =
-      groupedStops.map((nid, gtfss) => NormalStop(nid, gtfss.head, gtfss.tail))
+      groupedStops.map((nid, gtfss) => createNormalStop(nid, gtfss))
     Stops(normalStops.toList, gtfsStops)
 
 case class Stops(normalStops: List[NormalStop], gtfsStops: List[GtfsStop])

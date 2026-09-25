@@ -1,12 +1,11 @@
 package dafi.cli
 
-import com.google.flatbuffers.FlatBufferBuilder
 import dafi.ctfs.CtfsBundle
-import dafi.flat.Extensions.*
 import dafi.steps.{PipelineOptions, ReadStopsOptions, Steps}
 import scopt.OParser
 
-import java.nio.file.{Files, Paths}
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{Files, Path}
 
 case class Options(
     input: Option[String] = None,
@@ -47,9 +46,12 @@ class Main(args: Array[String]):
       )
     val pipeline = Steps.builder(stepsOptions).newPipeline
     val bundle = pipeline.step[CtfsBundle].get()
-    val buf = new FlatBufferBuilder()
-    buf.finishSection(bundle.createManifestSection(buf))
-    Files.write(Paths.get(opts.output.get), buf.sizedByteArray())
+    val sections = bundle.buildSections()
+    val rootPath = opts.output.get
+    Files.createDirectories(Path.of(rootPath))
+    for section <- sections do
+      val fullPath = Path.of(rootPath, section.path)
+      Files.write(fullPath, section.toByteArray)
 
 def main(args: Array[String]): Unit =
   new Main(args).main()

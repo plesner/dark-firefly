@@ -29,7 +29,7 @@ path(optionalEncoding?:any):string|Uint8Array|null {
   return offset ? this.bb!.__string(this.bb_pos + offset, optionalEncoding) : null;
 }
 
-attributeMask():number {
+attribMask():number {
   const offset = this.bb!.__offset(this.bb_pos, 6);
   return offset ? this.bb!.readInt32(this.bb_pos + offset) : 0;
 }
@@ -42,8 +42,8 @@ static addPath(builder:flatbuffers.Builder, pathOffset:flatbuffers.Offset) {
   builder.addFieldOffset(0, pathOffset, 0);
 }
 
-static addAttributeMask(builder:flatbuffers.Builder, attributeMask:number) {
-  builder.addFieldInt32(1, attributeMask, 0);
+static addAttribMask(builder:flatbuffers.Builder, attribMask:number) {
+  builder.addFieldInt32(1, attribMask, 0);
 }
 
 static endEntitySectionDescription(builder:flatbuffers.Builder):flatbuffers.Offset {
@@ -51,10 +51,10 @@ static endEntitySectionDescription(builder:flatbuffers.Builder):flatbuffers.Offs
   return offset;
 }
 
-static createEntitySectionDescription(builder:flatbuffers.Builder, pathOffset:flatbuffers.Offset, attributeMask:number):flatbuffers.Offset {
+static createEntitySectionDescription(builder:flatbuffers.Builder, pathOffset:flatbuffers.Offset, attribMask:number):flatbuffers.Offset {
   EntitySectionDescription.startEntitySectionDescription(builder);
   EntitySectionDescription.addPath(builder, pathOffset);
-  EntitySectionDescription.addAttributeMask(builder, attributeMask);
+  EntitySectionDescription.addAttribMask(builder, attribMask);
   return EntitySectionDescription.endEntitySectionDescription(builder);
 }
 }

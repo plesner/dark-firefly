@@ -36,8 +36,10 @@ object BuildStopSubdivs extends PipelineStepObject[StopSubdivs]:
       remainingStops = smallPackages.values.flatten.toList
       val newSubdivs = largePackages.map((k, v) => StopSubdiv(k, v.length))
       packages = packages ++ newSubdivs
-    if remainingStops.nonEmpty then
-      packages = packages ++ List(StopSubdiv(ZQuad.Everything, remainingStops.length))
+    if remainingStops.nonEmpty then {
+      val commonAncestor = ZQuad.leastCommonAncestor(remainingStops.map(_.quad))
+      packages = packages ++ List(StopSubdiv(commonAncestor, remainingStops.length))
+    }
     assert(packages.map(_.stopCount).sum == stops.length)
     StopSubdivs(packages.toList.sortBy(-_.quad.toLong))
 

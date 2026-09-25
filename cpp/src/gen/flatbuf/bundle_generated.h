@@ -13,6 +13,7 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
               FLATBUFFERS_VERSION_REVISION == 10,
              "Non-compatible flatbuffers version included");
 
+#include "stops_generated.h"
 #include "utils_generated.h"
 
 namespace dafi {
@@ -39,7 +40,7 @@ struct BundleManifestBuilder;
 struct BundleSection;
 struct BundleSectionBuilder;
 
-enum EntityType : int8_t {
+enum EntityType : uint8_t {
   EntityType_STOP = 0,
   EntityType_MIN = EntityType_STOP,
   EntityType_MAX = EntityType_STOP
@@ -68,15 +69,15 @@ inline const char *EnumNameEntityType(EntityType e) {
 
 enum EntityPackageHeader : uint8_t {
   EntityPackageHeader_NONE = 0,
-  EntityPackageHeader_stop = 1,
+  EntityPackageHeader_stops = 1,
   EntityPackageHeader_MIN = EntityPackageHeader_NONE,
-  EntityPackageHeader_MAX = EntityPackageHeader_stop
+  EntityPackageHeader_MAX = EntityPackageHeader_stops
 };
 
 inline const EntityPackageHeader (&EnumValuesEntityPackageHeader())[2] {
   static const EntityPackageHeader values[] = {
     EntityPackageHeader_NONE,
-    EntityPackageHeader_stop
+    EntityPackageHeader_stops
   };
   return values;
 }
@@ -84,14 +85,14 @@ inline const EntityPackageHeader (&EnumValuesEntityPackageHeader())[2] {
 inline const char * const *EnumNamesEntityPackageHeader() {
   static const char * const names[3] = {
     "NONE",
-    "stop",
+    "stops",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameEntityPackageHeader(EntityPackageHeader e) {
-  if (::flatbuffers::IsOutRange(e, EntityPackageHeader_NONE, EntityPackageHeader_stop)) return "";
+  if (::flatbuffers::IsOutRange(e, EntityPackageHeader_NONE, EntityPackageHeader_stops)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesEntityPackageHeader()[index];
 }
@@ -101,7 +102,7 @@ template<typename T> struct EntityPackageHeaderTraits {
 };
 
 template<> struct EntityPackageHeaderTraits<dafi::flatbuf::StopPackageHeader> {
-  static const EntityPackageHeader enum_value = EntityPackageHeader_stop;
+  static const EntityPackageHeader enum_value = EntityPackageHeader_stops;
 };
 
 bool VerifyEntityPackageHeader(::flatbuffers::Verifier &verifier, const void *obj, EntityPackageHeader type);
@@ -110,29 +111,32 @@ bool VerifyEntityPackageHeaderVector(::flatbuffers::Verifier &verifier, const ::
 enum BundleSectionContents : uint8_t {
   BundleSectionContents_NONE = 0,
   BundleSectionContents_manifest = 1,
+  BundleSectionContents_stops = 2,
   BundleSectionContents_MIN = BundleSectionContents_NONE,
-  BundleSectionContents_MAX = BundleSectionContents_manifest
+  BundleSectionContents_MAX = BundleSectionContents_stops
 };
 
-inline const BundleSectionContents (&EnumValuesBundleSectionContents())[2] {
+inline const BundleSectionContents (&EnumValuesBundleSectionContents())[3] {
   static const BundleSectionContents values[] = {
     BundleSectionContents_NONE,
-    BundleSectionContents_manifest
+    BundleSectionContents_manifest,
+    BundleSectionContents_stops
   };
   return values;
 }
 
 inline const char * const *EnumNamesBundleSectionContents() {
-  static const char * const names[3] = {
+  static const char * const names[4] = {
     "NONE",
     "manifest",
+    "stops",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameBundleSectionContents(BundleSectionContents e) {
-  if (::flatbuffers::IsOutRange(e, BundleSectionContents_NONE, BundleSectionContents_manifest)) return "";
+  if (::flatbuffers::IsOutRange(e, BundleSectionContents_NONE, BundleSectionContents_stops)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesBundleSectionContents()[index];
 }
@@ -145,6 +149,10 @@ template<> struct BundleSectionContentsTraits<dafi::flatbuf::BundleManifest> {
   static const BundleSectionContents enum_value = BundleSectionContents_manifest;
 };
 
+template<> struct BundleSectionContentsTraits<dafi::flatbuf::StopsSection> {
+  static const BundleSectionContents enum_value = BundleSectionContents_stops;
+};
+
 bool VerifyBundleSectionContents(::flatbuffers::Verifier &verifier, const void *obj, BundleSectionContents type);
 bool VerifyBundleSectionContentsVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
@@ -152,19 +160,19 @@ struct EntitySectionDescription FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
   typedef EntitySectionDescriptionBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PATH = 4,
-    VT_ATTRIBUTE_MASK = 6
+    VT_ATTRIB_MASK = 6
   };
   const ::flatbuffers::String *path() const {
     return GetPointer<const ::flatbuffers::String *>(VT_PATH);
   }
-  int32_t attribute_mask() const {
-    return GetField<int32_t>(VT_ATTRIBUTE_MASK, 0);
+  int32_t attrib_mask() const {
+    return GetField<int32_t>(VT_ATTRIB_MASK, 0);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_PATH) &&
            verifier.VerifyString(path()) &&
-           VerifyField<int32_t>(verifier, VT_ATTRIBUTE_MASK, 4) &&
+           VerifyField<int32_t>(verifier, VT_ATTRIB_MASK, 4) &&
            verifier.EndTable();
   }
 };
@@ -176,8 +184,8 @@ struct EntitySectionDescriptionBuilder {
   void add_path(::flatbuffers::Offset<::flatbuffers::String> path) {
     fbb_.AddOffset(EntitySectionDescription::VT_PATH, path);
   }
-  void add_attribute_mask(int32_t attribute_mask) {
-    fbb_.AddElement<int32_t>(EntitySectionDescription::VT_ATTRIBUTE_MASK, attribute_mask, 0);
+  void add_attrib_mask(int32_t attrib_mask) {
+    fbb_.AddElement<int32_t>(EntitySectionDescription::VT_ATTRIB_MASK, attrib_mask, 0);
   }
   explicit EntitySectionDescriptionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -193,9 +201,9 @@ struct EntitySectionDescriptionBuilder {
 inline ::flatbuffers::Offset<EntitySectionDescription> CreateEntitySectionDescription(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> path = 0,
-    int32_t attribute_mask = 0) {
+    int32_t attrib_mask = 0) {
   EntitySectionDescriptionBuilder builder_(_fbb);
-  builder_.add_attribute_mask(attribute_mask);
+  builder_.add_attrib_mask(attrib_mask);
   builder_.add_path(path);
   return builder_.Finish();
 }
@@ -203,12 +211,12 @@ inline ::flatbuffers::Offset<EntitySectionDescription> CreateEntitySectionDescri
 inline ::flatbuffers::Offset<EntitySectionDescription> CreateEntitySectionDescriptionDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *path = nullptr,
-    int32_t attribute_mask = 0) {
+    int32_t attrib_mask = 0) {
   auto path__ = path ? _fbb.CreateString(path) : 0;
   return dafi::flatbuf::CreateEntitySectionDescription(
       _fbb,
       path__,
-      attribute_mask);
+      attrib_mask);
 }
 
 struct EntitySetDescription FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -218,14 +226,14 @@ struct EntitySetDescription FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     VT_PACKAGES = 6
   };
   dafi::flatbuf::EntityType type() const {
-    return static_cast<dafi::flatbuf::EntityType>(GetField<int8_t>(VT_TYPE, 0));
+    return static_cast<dafi::flatbuf::EntityType>(GetField<uint8_t>(VT_TYPE, 0));
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<dafi::flatbuf::EntityPackageDescription>> *packages() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<dafi::flatbuf::EntityPackageDescription>> *>(VT_PACKAGES);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
            VerifyOffset(verifier, VT_PACKAGES) &&
            verifier.VerifyVector(packages()) &&
            verifier.VerifyVectorOfTables(packages()) &&
@@ -238,7 +246,7 @@ struct EntitySetDescriptionBuilder {
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_type(dafi::flatbuf::EntityType type) {
-    fbb_.AddElement<int8_t>(EntitySetDescription::VT_TYPE, static_cast<int8_t>(type), 0);
+    fbb_.AddElement<uint8_t>(EntitySetDescription::VT_TYPE, static_cast<uint8_t>(type), 0);
   }
   void add_packages(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<dafi::flatbuf::EntityPackageDescription>>> packages) {
     fbb_.AddOffset(EntitySetDescription::VT_PACKAGES, packages);
@@ -345,8 +353,8 @@ struct EntityPackageDescription FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
     return GetPointer<const void *>(VT_HEADER);
   }
   template<typename T> const T *header_as() const;
-  const dafi::flatbuf::StopPackageHeader *header_as_stop() const {
-    return header_type() == dafi::flatbuf::EntityPackageHeader_stop ? static_cast<const dafi::flatbuf::StopPackageHeader *>(header()) : nullptr;
+  const dafi::flatbuf::StopPackageHeader *header_as_stops() const {
+    return header_type() == dafi::flatbuf::EntityPackageHeader_stops ? static_cast<const dafi::flatbuf::StopPackageHeader *>(header()) : nullptr;
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -366,7 +374,7 @@ struct EntityPackageDescription FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
 };
 
 template<> inline const dafi::flatbuf::StopPackageHeader *EntityPackageDescription::header_as<dafi::flatbuf::StopPackageHeader>() const {
-  return header_as_stop();
+  return header_as_stops();
 }
 
 struct EntityPackageDescriptionBuilder {
@@ -550,6 +558,9 @@ struct BundleSection FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const dafi::flatbuf::BundleManifest *contents_as_manifest() const {
     return contents_type() == dafi::flatbuf::BundleSectionContents_manifest ? static_cast<const dafi::flatbuf::BundleManifest *>(contents()) : nullptr;
   }
+  const dafi::flatbuf::StopsSection *contents_as_stops() const {
+    return contents_type() == dafi::flatbuf::BundleSectionContents_stops ? static_cast<const dafi::flatbuf::StopsSection *>(contents()) : nullptr;
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_CONTENTS_TYPE, 1) &&
@@ -561,6 +572,10 @@ struct BundleSection FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
 
 template<> inline const dafi::flatbuf::BundleManifest *BundleSection::contents_as<dafi::flatbuf::BundleManifest>() const {
   return contents_as_manifest();
+}
+
+template<> inline const dafi::flatbuf::StopsSection *BundleSection::contents_as<dafi::flatbuf::StopsSection>() const {
+  return contents_as_stops();
 }
 
 struct BundleSectionBuilder {
@@ -599,7 +614,7 @@ inline bool VerifyEntityPackageHeader(::flatbuffers::Verifier &verifier, const v
     case EntityPackageHeader_NONE: {
       return true;
     }
-    case EntityPackageHeader_stop: {
+    case EntityPackageHeader_stops: {
       auto ptr = reinterpret_cast<const dafi::flatbuf::StopPackageHeader *>(obj);
       return verifier.VerifyTable(ptr);
     }
@@ -626,6 +641,10 @@ inline bool VerifyBundleSectionContents(::flatbuffers::Verifier &verifier, const
     }
     case BundleSectionContents_manifest: {
       auto ptr = reinterpret_cast<const dafi::flatbuf::BundleManifest *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case BundleSectionContents_stops: {
+      auto ptr = reinterpret_cast<const dafi::flatbuf::StopsSection *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;

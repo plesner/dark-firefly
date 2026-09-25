@@ -1,14 +1,15 @@
+include "stops.fbs";
 include "utils.fbs";
 
 namespace dafi.flatbuf;
 
-enum EntityType: byte {
+enum EntityType: ubyte {
   STOP = 0
 }
 
 table EntitySectionDescription {
   path: string (id: 0);
-  attribute_mask: int (id: 1);
+  attrib_mask: int (id: 1);
 }
 
 table EntitySetDescription {
@@ -21,7 +22,7 @@ table StopPackageHeader {
 }
 
 union EntityPackageHeader {
-  stop: StopPackageHeader
+  stops: StopPackageHeader
 }
 
 table EntityPackageDescription {
@@ -41,7 +42,8 @@ table BundleManifest {
 }
 
 union BundleSectionContents {
-  manifest: BundleManifest
+  manifest: BundleManifest,
+  stops: StopsSection
 }
 
 table BundleSection {

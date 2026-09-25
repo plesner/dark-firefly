@@ -7,7 +7,7 @@ import { StopPackageHeader } from '../../dafi/flatbuf/stop-package-header.js';
 
 export enum EntityPackageHeader {
   NONE = 0,
-  stop = 1
+  stops = 1
 }
 
 export function unionToEntityPackageHeader(
@@ -16,7 +16,7 @@ export function unionToEntityPackageHeader(
 ): StopPackageHeader|null {
   switch(EntityPackageHeader[type]) {
     case 'NONE': return null; 
-    case 'stop': return accessor(new StopPackageHeader())! as StopPackageHeader;
+    case 'stops': return accessor(new StopPackageHeader())! as StopPackageHeader;
     default: return null;
   }
 }
@@ -28,7 +28,7 @@ export function unionListToEntityPackageHeader(
 ): StopPackageHeader|null {
   switch(EntityPackageHeader[type]) {
     case 'NONE': return null; 
-    case 'stop': return accessor(index, new StopPackageHeader())! as StopPackageHeader;
+    case 'stops': return accessor(index, new StopPackageHeader())! as StopPackageHeader;
     default: return null;
   }
 }

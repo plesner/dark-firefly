@@ -27,7 +27,7 @@ public final class EntitySetDescription extends Table {
   public void __init(int _i, ByteBuffer _bb) { __reset(_i, _bb); }
   public EntitySetDescription __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
-  public byte type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public int type() { int o = __offset(4); return o != 0 ? bb.get(o + bb_pos) & 0xFF : 0; }
   public dafi.flatbuf.EntityPackageDescription packages(int j) { return packages(new dafi.flatbuf.EntityPackageDescription(), j); }
   public dafi.flatbuf.EntityPackageDescription packages(dafi.flatbuf.EntityPackageDescription obj, int j) { int o = __offset(6); return o != 0 ? obj.__assign(__indirect(__vector(o) + j * 4), bb) : null; }
   public int packagesLength() { int o = __offset(6); return o != 0 ? __vector_len(o) : 0; }
@@ -35,7 +35,7 @@ public final class EntitySetDescription extends Table {
   public dafi.flatbuf.EntityPackageDescription.Vector packagesVector(dafi.flatbuf.EntityPackageDescription.Vector obj) { int o = __offset(6); return o != 0 ? obj.__assign(__vector(o), 4, bb) : null; }
 
   public static int createEntitySetDescription(FlatBufferBuilder builder,
-      byte type,
+      int type,
       int packagesOffset) {
     builder.startTable(2);
     EntitySetDescription.addPackages(builder, packagesOffset);
@@ -44,7 +44,7 @@ public final class EntitySetDescription extends Table {
   }
 
   public static void startEntitySetDescription(FlatBufferBuilder builder) { builder.startTable(2); }
-  public static void addType(FlatBufferBuilder builder, byte type) { builder.addByte(0, type, 0); }
+  public static void addType(FlatBufferBuilder builder, int type) { builder.addByte(0, (byte) type, (byte) 0); }
   public static void addPackages(FlatBufferBuilder builder, int packagesOffset) { builder.addOffset(1, packagesOffset, 0); }
   public static int createPackagesVector(FlatBufferBuilder builder, int[] data) { builder.startVector(4, data.length, 4); for (int i = data.length - 1; i >= 0; i--) builder.addOffset(data[i]); return builder.endVector(); }
   public static void startPackagesVector(FlatBufferBuilder builder, int numElems) { builder.startVector(4, numElems, 4); }
